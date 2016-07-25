@@ -12,6 +12,8 @@ class Dot {
     private int mCurrentColor;
     private int mDotRadius;
     private DotLoader mParent;
+    float cx;
+    float cy;
 
     Dot(DotLoader parent, int currentColor, int dotRadius) {
         mParent = parent;
@@ -29,7 +31,7 @@ class Dot {
         mPaint.setColor(color);
     }
 
-    public void draw(Canvas canvas, float cx, float cy) {
+    public void draw(Canvas canvas) {
         canvas.drawCircle(cx, cy, mDotRadius, mPaint);
     }
 }

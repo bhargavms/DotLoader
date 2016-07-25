@@ -9,8 +9,11 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.bhargavms.dotloader_sample.MainActivity">
 
-    <TextView
+    <com.bhargavms.dotloader.DotLoader
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        app:dot_radius="4dp"
+        app:number_of_dots="3"
+        app:color_array="@array/dot_colors"/>
 </RelativeLayout>
