@@ -1,5 +1,6 @@
 package com.bhargavms.dotloader;
 
+import android.animation.ValueAnimator;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -9,26 +10,48 @@ import android.graphics.Paint;
  */
 class Dot {
     private Paint mPaint;
-    private int mCurrentColor;
+    int mCurrentColorIndex;
     private int mDotRadius;
     private DotLoader mParent;
     float cx;
     float cy;
+    int position;
+    ValueAnimator positionAnimator;
 
-    Dot(DotLoader parent, int currentColor, int dotRadius) {
+    Dot(DotLoader parent, int dotRadius, int position) {
+        this.position = position;
         mParent = parent;
-        mCurrentColor = currentColor;
+        mCurrentColorIndex = 0;
         mDotRadius = dotRadius;
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setColor(currentColor);
+        mPaint.setColor(mParent.mColors[mCurrentColorIndex]);
         mPaint.setShadowLayer(5.5f, 6.0f, 6.0f, Color.BLACK);
         mPaint.setStyle(Paint.Style.FILL);
     }
 
+    public void setColorIndex(int index) {
+        mCurrentColorIndex = index;
+        mPaint.setColor(mParent.mColors[index]);
+    }
+
     public void setColor(int color) {
-        mCurrentColor = color;
         mPaint.setColor(color);
+    }
+
+
+    void applyNextColor() {
+        mCurrentColorIndex++;
+        if (mCurrentColorIndex >= mParent.mColors.length)
+            mCurrentColorIndex = 0;
+        mPaint.setColor(mParent.mColors[mCurrentColorIndex]);
+    }
+
+    int incrementColorIndex() {
+        mCurrentColorIndex++;
+        if (mCurrentColorIndex >= mParent.mColors.length)
+            mCurrentColorIndex = 0;
+        return mCurrentColorIndex;
     }
 
     public void draw(Canvas canvas) {

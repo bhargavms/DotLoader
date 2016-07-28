@@ -5,8 +5,8 @@
     <color name="colorAccent">#FF4081</color>
 
     <array name="dot_colors">
-        <item>@color/colorPrimaryDark</item>
-        <item>@color/colorAccent</item>
-        <item>@color/colorPrimary</item>
+        <item>#03A9F4</item>
+        <item>#E65100</item>
+        <item>#FFBB00</item>
     </array>
 </resources>

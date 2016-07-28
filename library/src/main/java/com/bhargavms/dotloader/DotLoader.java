@@ -1,5 +1,7 @@
 package com.bhargavms.dotloader;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -7,16 +9,21 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
+
+import java.lang.ref.WeakReference;
 
 /**
  * Created by Bhargav on 7/20/2016.
  */
 public class DotLoader extends View {
     private Dot[] mDots;
-    private int[] mColors;
+    Integer[] mColors;
     private int mDotRadius;
     private Rect mClipBounds;
     private float mCalculatedGapBetweenDotCenters;
+    private float mFromY;
+    private float mToY;
 
     public DotLoader(Context context) {
         super(context);
@@ -48,14 +55,18 @@ public class DotLoader extends View {
             float dotRadius = a.getDimension(R.styleable.DotLoader_dot_radius, 0);
             int numberOfPods = a.getInteger(R.styleable.DotLoader_number_of_dots, 1);
             int resId = a.getResourceId(R.styleable.DotLoader_color_array, 0);
-            int[] colors;
+            Integer[] colors;
             if (resId == 0) {
-                colors = new int[numberOfPods];
+                colors = new Integer[numberOfPods];
                 for (int i = 0; i < numberOfPods; i++) {
                     colors[i] = 0x0;
                 }
             } else {
-                colors = getResources().getIntArray(resId);
+                int[] temp = getResources().getIntArray(resId);
+                colors = new Integer[temp.length];
+                for (int i = 0; i < temp.length; i++) {
+                    colors[i] = temp[i];
+                }
             }
             init(numberOfPods, colors, (int) dotRadius);
         } finally {
@@ -63,25 +74,109 @@ public class DotLoader extends View {
         }
     }
 
-    private void init(int numberOfDots, int[] colors, int dotRadius) {
+    private void init(int numberOfDots, Integer[] colors, int dotRadius) {
+        mColors = colors;
         mClipBounds = new Rect(0, 0, 0, 0);
         mDots = new Dot[numberOfDots];
         mDotRadius = dotRadius;
         for (int i = 0; i < numberOfDots; i++) {
-            mDots[i] = new Dot(this, colors[i], dotRadius);
+            mDots[i] = new Dot(this, dotRadius, i);
+        }
+        postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                initAnimation();
+                startAnimation();
+            }
+        }, 1000);
+    }
+
+    public void initAnimation() {
+        for (int i = 0, size = mDots.length; i < size; i++) {
+            mDots[i].positionAnimator = createValueAnimatorForDot(mDots[i]);
+            mDots[i].positionAnimator.setStartDelay(80 * i);
         }
     }
+
+    public void startAnimation() {
+        for (Dot mDot : mDots) {
+            mDot.positionAnimator.start();
+        }
+    }
+
+    private ValueAnimator createValueAnimatorForDot(Dot dot) {
+        ValueAnimator animator = ValueAnimator.ofFloat(
+                mFromY, mToY
+        );
+        animator.setInterpolator(new CubicBezierInterpolator(0.62f, 0.28f, 0.23f, 0.99f));
+        animator.setDuration(500);
+        animator.setRepeatCount(ValueAnimator.INFINITE);
+        animator.setRepeatMode(ValueAnimator.REVERSE);
+        animator.addUpdateListener(new DotYUpdater(dot, this));
+        return animator;
+    }
+
+    private ValueAnimator createColorAnimatorForDot(Dot dot) {
+        ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), mColors);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setDuration(80);
+        animator.addUpdateListener(new DotColorUpdater(dot, this));
+        return animator;
+    }
+
+    private static class DotColorUpdater implements ValueAnimator.AnimatorUpdateListener {
+        private Dot mDot;
+        private WeakReference<DotLoader> mDotLoaderRef;
+
+        private DotColorUpdater(Dot dot, DotLoader dotLoader) {
+            mDot = dot;
+            mDotLoaderRef = new WeakReference<>(dotLoader);
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator valueAnimator) {
+            mDot.setColor((Integer) valueAnimator.getAnimatedValue());
+            DotLoader dotLoader = mDotLoaderRef.get();
+            if (dotLoader != null)
+                dotLoader.invalidateOnlyRectIfPossible();
+        }
+    }
+
+    private static class DotYUpdater implements ValueAnimator.AnimatorUpdateListener {
+        private Dot mDot;
+        private WeakReference<DotLoader> mDotLoaderRef;
+
+        private DotYUpdater(Dot dot, DotLoader dotLoader) {
+            mDot = dot;
+            mDotLoaderRef = new WeakReference<>(dotLoader);
+        }
+
+        @Override
+        public void onAnimationUpdate(ValueAnimator valueAnimator) {
+            mDot.cy = (float) valueAnimator.getAnimatedValue();
+            DotLoader dotLoader = mDotLoaderRef.get();
+            if (dotLoader != null) {
+                dotLoader.invalidateOnlyRectIfPossible();
+            }
+        }
+    }
+
+
+    private void invalidateOnlyRectIfPossible() {
+        if (mClipBounds != null && mClipBounds.left != 0 &&
+                mClipBounds.top != 0 && mClipBounds.right != 0 && mClipBounds.bottom != 0)
+            invalidate(mClipBounds);
+        else
+            invalidate();
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.getClipBounds(mClipBounds);
-        int left = mClipBounds.left;
-        int right = mClipBounds.right;
-        int top = mClipBounds.top;
-        int bottom = mClipBounds.bottom;
-        for (int i = 0, size = mDots.length; i < size; i++) {
-            mDots[i].draw(canvas);
+        for (Dot mDot : mDots) {
+            mDot.draw(canvas);
         }
     }
 
@@ -95,7 +190,7 @@ public class DotLoader extends View {
         int width;
         int height;
         // desired height is 6 times the diameter of a dot.
-        int desiredHeight = (mDotRadius * 2 * 6) + getPaddingTop() + getPaddingBottom();
+        int desiredHeight = (mDotRadius * 2 * 3) + getPaddingTop() + getPaddingBottom();
 
         //Measure Height
         if (heightMode == MeasureSpec.EXACTLY) {
@@ -125,6 +220,8 @@ public class DotLoader extends View {
             mDots[i].cx = (mDotRadius + i * mCalculatedGapBetweenDotCenters);
             mDots[i].cy = height - mDotRadius;
         }
+        mFromY = height - mDotRadius;
+        mToY = mDotRadius;
         setMeasuredDimension(width, height);
     }
 
