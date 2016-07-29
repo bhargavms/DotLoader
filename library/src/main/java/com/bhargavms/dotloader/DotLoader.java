@@ -9,14 +9,16 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
 import java.lang.ref.WeakReference;
 
 /**
- * Created by Bhargav on 7/20/2016.
+ * Isn't this a cool animation?
  */
 public class DotLoader extends View {
+    private static final int DELAY_BETWEEN_DOTS = 80;
     private Dot[] mDots;
     Integer[] mColors;
     private int mDotRadius;
@@ -24,6 +26,44 @@ public class DotLoader extends View {
     private float mCalculatedGapBetweenDotCenters;
     private float mFromY;
     private float mToY;
+    private Interpolator bounceAnimationInterpolator =
+            new CubicBezierInterpolator(0.62f, 0.28f, 0.23f, 0.99f);
+
+    public void setNumberOfDots(int numberOfDots) {
+        Dot[] newDots = new Dot[numberOfDots];
+        if (numberOfDots < mDots.length) {
+            System.arraycopy(mDots, 0, newDots, 0, numberOfDots);
+        } else {
+            System.arraycopy(mDots, 0, newDots, 0, mDots.length);
+            for (int i = mDots.length; i < numberOfDots; i++) {
+                newDots[i] = new Dot(this, mDotRadius, i);
+                newDots[i].cx = newDots[i - 1].cx + mCalculatedGapBetweenDotCenters;
+                newDots[i].setColorIndex(newDots[i - 1].mCurrentColorIndex);
+                newDots[i].positionAnimator =
+                        clonePositionAnimatorForDot(newDots[0].positionAnimator, newDots[i]);
+                newDots[i].colorAnimator =
+                        cloneColorAnimatorForDot(newDots[0].colorAnimator, newDots[i]);
+                newDots[i].positionAnimator.start();
+                long currentTime = newDots[i].positionAnimator.getCurrentPlayTime();
+                newDots[i].positionAnimator.setCurrentPlayTime(currentTime - (DELAY_BETWEEN_DOTS * i));
+            }
+        }
+        mDots = newDots;
+    }
+
+    private ValueAnimator cloneColorAnimatorForDot(ValueAnimator colorAnimator, Dot dot) {
+        ValueAnimator valueAnimator = colorAnimator.clone();
+        valueAnimator.removeAllUpdateListeners();
+        valueAnimator.addUpdateListener(new DotColorUpdater(dot, this));
+        return valueAnimator;
+    }
+
+    private ValueAnimator clonePositionAnimatorForDot(ValueAnimator animator, Dot dot) {
+        ValueAnimator valueAnimator = animator.clone();
+        valueAnimator.removeAllUpdateListeners();
+        valueAnimator.addUpdateListener(new DotYUpdater(dot, this));
+        return valueAnimator;
+    }
 
     public DotLoader(Context context) {
         super(context);
@@ -94,7 +134,7 @@ public class DotLoader extends View {
     public void initAnimation() {
         for (int i = 0, size = mDots.length; i < size; i++) {
             mDots[i].positionAnimator = createValueAnimatorForDot(mDots[i]);
-            mDots[i].positionAnimator.setStartDelay(80 * i);
+            mDots[i].positionAnimator.setStartDelay(DELAY_BETWEEN_DOTS * i);
 
             mDots[i].colorAnimator = createColorAnimatorForDot(mDots[i]);
         }
@@ -110,7 +150,7 @@ public class DotLoader extends View {
         ValueAnimator animator = ValueAnimator.ofFloat(
                 mFromY, mToY
         );
-        animator.setInterpolator(new CubicBezierInterpolator(0.62f, 0.28f, 0.23f, 0.99f));
+        animator.setInterpolator(bounceAnimationInterpolator);
         animator.setDuration(500);
         animator.setRepeatCount(ValueAnimator.INFINITE);
         animator.setRepeatMode(ValueAnimator.REVERSE);
@@ -162,7 +202,7 @@ public class DotLoader extends View {
             mDot.cy = (float) valueAnimator.getAnimatedValue();
             DotLoader dotLoader = mDotLoaderRef.get();
             if (dotLoader != null) {
-                if (((int)mDot.cy == (int)dotLoader.mToY) && !mDot.colorAnimator.isRunning()) {
+                if (((int) mDot.cy == (int) dotLoader.mToY) && !mDot.colorAnimator.isRunning()) {
                     mDot.colorAnimator.setObjectValues(
                             dotLoader.mColors[mDot.mCurrentColorIndex],
                             dotLoader.mColors[mDot.incrementColorIndex()]
