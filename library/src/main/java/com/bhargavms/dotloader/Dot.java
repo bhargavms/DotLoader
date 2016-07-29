@@ -17,6 +17,7 @@ class Dot {
     float cy;
     int position;
     ValueAnimator positionAnimator;
+    ValueAnimator colorAnimator;
 
     Dot(DotLoader parent, int dotRadius, int position) {
         this.position = position;

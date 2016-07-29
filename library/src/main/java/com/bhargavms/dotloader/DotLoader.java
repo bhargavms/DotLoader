@@ -95,6 +95,8 @@ public class DotLoader extends View {
         for (int i = 0, size = mDots.length; i < size; i++) {
             mDots[i].positionAnimator = createValueAnimatorForDot(mDots[i]);
             mDots[i].positionAnimator.setStartDelay(80 * i);
+
+            mDots[i].colorAnimator = createColorAnimatorForDot(mDots[i]);
         }
     }
 
@@ -117,9 +119,12 @@ public class DotLoader extends View {
     }
 
     private ValueAnimator createColorAnimatorForDot(Dot dot) {
-        ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), mColors);
+        ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), mColors[dot.mCurrentColorIndex],
+                mColors[dot.incrementColorIndex()]);
         animator.setInterpolator(new LinearInterpolator());
-        animator.setDuration(80);
+        animator.setDuration(120);
+//        animator.setRepeatCount(ValueAnimator.INFINITE);
+//        animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.addUpdateListener(new DotColorUpdater(dot, this));
         return animator;
     }
@@ -137,8 +142,9 @@ public class DotLoader extends View {
         public void onAnimationUpdate(ValueAnimator valueAnimator) {
             mDot.setColor((Integer) valueAnimator.getAnimatedValue());
             DotLoader dotLoader = mDotLoaderRef.get();
-            if (dotLoader != null)
+            if (dotLoader != null) {
                 dotLoader.invalidateOnlyRectIfPossible();
+            }
         }
     }
 
@@ -156,6 +162,13 @@ public class DotLoader extends View {
             mDot.cy = (float) valueAnimator.getAnimatedValue();
             DotLoader dotLoader = mDotLoaderRef.get();
             if (dotLoader != null) {
+                if (((int)mDot.cy == (int)dotLoader.mToY) && !mDot.colorAnimator.isRunning()) {
+                    mDot.colorAnimator.setObjectValues(
+                            dotLoader.mColors[mDot.mCurrentColorIndex],
+                            dotLoader.mColors[mDot.incrementColorIndex()]
+                    );
+                    mDot.colorAnimator.start();
+                }
                 dotLoader.invalidateOnlyRectIfPossible();
             }
         }
