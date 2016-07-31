@@ -1,4 +1,5 @@
 # DotLoader
+[![Release](https://jitpack.io/v/bhargavms/DotLoader.svg)](https://github.com/bhargavms/DotLoader/releases/tag/1.0.0)
 -------------------------------------------------------
 #### First, the gifs!
 ##### I am the one with constant Dots:
