@@ -2,13 +2,13 @@
 -------------------------------------------------------
 #### First, the gifs!
 ##### I am the one with constant Dots:
-![Sample Gif](assets/gifs/constant_dots.gif?raw=true)
+![Sample Gif](assets/constant_dots.gif?raw=true)
 
 ##### You can add dots on the fly !
-![Sample Gif](assets/gifs/adding_dots.gif?raw=true)
+![Sample Gif](assets/adding_dots.gif?raw=true)
 
 ##### And maybe create some cool animations like this?
-![Sample Gif](assets/gifs/loading_anim.gif?raw=true)
+![Sample Gif](assets/loading_anim.gif?raw=true)
 
 (This sucks but you get the idea :))
 
