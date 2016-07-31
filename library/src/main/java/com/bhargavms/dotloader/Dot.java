@@ -40,6 +40,14 @@ class Dot {
         mPaint.setColor(color);
     }
 
+    public int getCurrentColor() {
+        return mParent.mColors[mCurrentColorIndex];
+    }
+
+    public int incrementAndGetColor() {
+        incrementColorIndex();
+        return getCurrentColor();
+    }
 
     void applyNextColor() {
         mCurrentColorIndex++;

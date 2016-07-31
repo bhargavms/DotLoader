@@ -1,5 +1,6 @@
 package com.bhargavms.dotloader;
 
+import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
@@ -59,17 +60,49 @@ public class DotLoader extends View {
         return valueAnimator;
     }
 
-    private ValueAnimator clonePositionAnimatorForDot(ValueAnimator animator, Dot dot) {
+    private ValueAnimator clonePositionAnimatorForDot(ValueAnimator animator,final Dot dot) {
         ValueAnimator valueAnimator = animator.clone();
         valueAnimator.removeAllUpdateListeners();
         valueAnimator.addUpdateListener(new DotYUpdater(dot, this));
         valueAnimator.setStartDelay(DELAY_BETWEEN_DOTS * dot.position);
+        valueAnimator.removeAllListeners();
+        valueAnimator.addListener(new Animator.AnimatorListener() {
+            private boolean alternate = true;
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+                if(alternate) {
+                    dot.colorAnimator.setObjectValues(
+                            mColors[dot.mCurrentColorIndex],
+                            mColors[dot.incrementColorIndex()]
+                    );
+                    dot.colorAnimator.start();
+                    alternate = false;
+                } else {
+                    alternate = true;
+                }
+            }
+        });
         return valueAnimator;
     }
 
     public void resetColors() {
         for (Dot dot : mDots) {
-            dot.mCurrentColorIndex = 0;
+            dot.setColorIndex(0);
         }
     }
 
@@ -140,7 +173,6 @@ public class DotLoader extends View {
         postDelayed(new Runnable() {
             @Override
             public void run() {
-                initAnimation();
                 startAnimation();
             }
         }, 1000);
@@ -161,7 +193,7 @@ public class DotLoader extends View {
         }
     }
 
-    private ValueAnimator createValueAnimatorForDot(Dot dot) {
+    private ValueAnimator createValueAnimatorForDot(final Dot dot) {
         ValueAnimator animator = ValueAnimator.ofFloat(
                 mFromY, mToY
         );
@@ -170,6 +202,37 @@ public class DotLoader extends View {
         animator.setRepeatCount(ValueAnimator.INFINITE);
         animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.addUpdateListener(new DotYUpdater(dot, this));
+        animator.addListener(new Animator.AnimatorListener() {
+            private boolean alternate = true;
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+                if(alternate) {
+                    dot.colorAnimator.setObjectValues(
+                            mColors[dot.mCurrentColorIndex],
+                            mColors[dot.incrementColorIndex()]
+                    );
+                    dot.colorAnimator.start();
+                    alternate = false;
+                } else {
+                    alternate = true;
+                }
+            }
+        });
         return animator;
     }
 
@@ -215,13 +278,6 @@ public class DotLoader extends View {
             mDot.cy = (float) valueAnimator.getAnimatedValue();
             DotLoader dotLoader = mDotLoaderRef.get();
             if (dotLoader != null) {
-                if (((int) mDot.cy == (int) dotLoader.mToY) && !mDot.colorAnimator.isRunning()) {
-                    mDot.colorAnimator.setObjectValues(
-                            dotLoader.mColors[mDot.mCurrentColorIndex],
-                            dotLoader.mColors[mDot.incrementColorIndex()]
-                    );
-                    mDot.colorAnimator.start();
-                }
                 dotLoader.invalidateOnlyRectIfPossible();
             }
         }
@@ -288,6 +344,7 @@ public class DotLoader extends View {
         }
         mFromY = height - mDotRadius;
         mToY = mDotRadius;
+        initAnimation();
         setMeasuredDimension(width, height);
     }
 
