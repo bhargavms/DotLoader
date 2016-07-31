@@ -3,19 +3,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.bhargavms.dotloader_sample.MainActivity">
 
-    <com.bhargavms.dotloader.DotLoader
-        android:id="@+id/dot_loader"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        app:dot_radius="20dp"
-        app:number_of_dots="3"
-        android:layout_centerInParent="true"
-        app:color_array="@array/dot_colors"/>
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="32dp">
+
+            <TextView
+                style="@style/TextAppearance.AppCompat.Display1"
+                android:textSize="44sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#E65100"
+                android:text="Loading"
+                android:paddingRight="2dp"/>
+
+            <com.bhargavms.dotloader.DotLoader
+                android:id="@+id/text_dot_loader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:color_array="@array/dot_colors"
+                app:dot_radius="4dp"
+                android:layout_gravity="bottom"
+                app:number_of_dots="3"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <com.bhargavms.dotloader.DotLoader
+            android:id="@+id/dot_loader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:color_array="@array/dot_colors"
+            app:dot_radius="20dp"
+            app:number_of_dots="3" />
+    </LinearLayout>
+
 </RelativeLayout>

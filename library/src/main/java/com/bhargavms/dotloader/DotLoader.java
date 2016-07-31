@@ -19,6 +19,8 @@ import java.lang.ref.WeakReference;
  */
 public class DotLoader extends View {
     private static final int DELAY_BETWEEN_DOTS = 80;
+    private static final int BOUNCE_ANIMATION_DURATION = 500;
+    private static final int COLOR_ANIMATION_DURATION = 80;
     private Dot[] mDots;
     Integer[] mColors;
     private int mDotRadius;
@@ -38,14 +40,13 @@ public class DotLoader extends View {
             for (int i = mDots.length; i < numberOfDots; i++) {
                 newDots[i] = new Dot(this, mDotRadius, i);
                 newDots[i].cx = newDots[i - 1].cx + mCalculatedGapBetweenDotCenters;
+                newDots[i].cy = newDots[i - 1].cy / 2;
                 newDots[i].setColorIndex(newDots[i - 1].mCurrentColorIndex);
                 newDots[i].positionAnimator =
                         clonePositionAnimatorForDot(newDots[0].positionAnimator, newDots[i]);
                 newDots[i].colorAnimator =
                         cloneColorAnimatorForDot(newDots[0].colorAnimator, newDots[i]);
                 newDots[i].positionAnimator.start();
-                long currentTime = newDots[i].positionAnimator.getCurrentPlayTime();
-                newDots[i].positionAnimator.setCurrentPlayTime(currentTime - (DELAY_BETWEEN_DOTS * i));
             }
         }
         mDots = newDots;
@@ -62,7 +63,14 @@ public class DotLoader extends View {
         ValueAnimator valueAnimator = animator.clone();
         valueAnimator.removeAllUpdateListeners();
         valueAnimator.addUpdateListener(new DotYUpdater(dot, this));
+        valueAnimator.setStartDelay(DELAY_BETWEEN_DOTS * dot.position);
         return valueAnimator;
+    }
+
+    public void resetColors() {
+        for (Dot dot : mDots) {
+            dot.mCurrentColorIndex = 0;
+        }
     }
 
     public DotLoader(Context context) {
@@ -114,6 +122,13 @@ public class DotLoader extends View {
         }
     }
 
+    public void stopAnimations() {
+        for (Dot dot : mDots) {
+            dot.positionAnimator.end();
+            dot.colorAnimator.end();
+        }
+    }
+
     private void init(int numberOfDots, Integer[] colors, int dotRadius) {
         mColors = colors;
         mClipBounds = new Rect(0, 0, 0, 0);
@@ -151,7 +166,7 @@ public class DotLoader extends View {
                 mFromY, mToY
         );
         animator.setInterpolator(bounceAnimationInterpolator);
-        animator.setDuration(500);
+        animator.setDuration(BOUNCE_ANIMATION_DURATION);
         animator.setRepeatCount(ValueAnimator.INFINITE);
         animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.addUpdateListener(new DotYUpdater(dot, this));
@@ -162,9 +177,7 @@ public class DotLoader extends View {
         ValueAnimator animator = ValueAnimator.ofObject(new ArgbEvaluator(), mColors[dot.mCurrentColorIndex],
                 mColors[dot.incrementColorIndex()]);
         animator.setInterpolator(new LinearInterpolator());
-        animator.setDuration(120);
-//        animator.setRepeatCount(ValueAnimator.INFINITE);
-//        animator.setRepeatMode(ValueAnimator.REVERSE);
+        animator.setDuration(COLOR_ANIMATION_DURATION);
         animator.addUpdateListener(new DotColorUpdater(dot, this));
         return animator;
     }
