@@ -25,7 +25,7 @@ allprojects {
 }
 ```
 Next add to your module level (app) `build.gradle`'s dependencies block like this
-> Check the releases section to get the version name for the latest release (i.e the name to replace X.X.X with)
+> Check the [releases](https://github.com/bhargavms/DotLoader/releases) section to get the version name for the latest release (i.e the name to replace X.X.X with)
 
 ```
 dependencies {
