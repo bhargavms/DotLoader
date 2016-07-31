@@ -25,9 +25,11 @@ allprojects {
 }
 ```
 Next add to your module level (app) `build.gradle`'s dependencies block like this
+> Check the releases section to get the version name for the latest release (i.e the name to replace X.X.X with)
+
 ```
 dependencies {
-    compile 'com.github.bhargavms:PodSLider:X.X.X'
+    compile 'com.github.bhargavms:DotLoader:X.X.X'
 }
 ```
 
