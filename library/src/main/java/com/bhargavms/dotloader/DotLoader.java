@@ -60,7 +60,7 @@ public class DotLoader extends View {
         return valueAnimator;
     }
 
-    private ValueAnimator clonePositionAnimatorForDot(ValueAnimator animator,final Dot dot) {
+    private ValueAnimator clonePositionAnimatorForDot(ValueAnimator animator, final Dot dot) {
         ValueAnimator valueAnimator = animator.clone();
         valueAnimator.removeAllUpdateListeners();
         valueAnimator.addUpdateListener(new DotYUpdater(dot, this));
@@ -68,6 +68,7 @@ public class DotLoader extends View {
         valueAnimator.removeAllListeners();
         valueAnimator.addListener(new Animator.AnimatorListener() {
             private boolean alternate = true;
+
             @Override
             public void onAnimationStart(Animator animator) {
 
@@ -85,7 +86,7 @@ public class DotLoader extends View {
 
             @Override
             public void onAnimationRepeat(Animator animator) {
-                if(alternate) {
+                if (alternate) {
                     dot.colorAnimator.setObjectValues(
                             mColors[dot.mCurrentColorIndex],
                             mColors[dot.incrementColorIndex()]
@@ -155,7 +156,7 @@ public class DotLoader extends View {
         }
     }
 
-    public void stopAnimations() {
+    private void _stopAnimations() {
         for (Dot dot : mDots) {
             dot.positionAnimator.end();
             dot.colorAnimator.end();
@@ -170,12 +171,7 @@ public class DotLoader extends View {
         for (int i = 0; i < numberOfDots; i++) {
             mDots[i] = new Dot(this, dotRadius, i);
         }
-        postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startAnimation();
-            }
-        }, 1000);
+        startAnimation();
     }
 
     public void initAnimation() {
@@ -187,7 +183,38 @@ public class DotLoader extends View {
         }
     }
 
-    public void startAnimation() {
+    /**
+     * Won't support starting and stopping animations for now, until I figure out how to sync animation
+     * delays.
+     *
+     * @deprecated
+     */
+    private void startAnimation() {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                _startAnimation();
+            }
+        });
+    }
+
+    /**
+     * Won't support starting and stopping animations for now, until I figure out how to sync animation
+     * delays.
+     *
+     * @deprecated
+     */
+    @SuppressWarnings("unused")
+    private void stopAnimations() {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                _stopAnimations();
+            }
+        });
+    }
+
+    private void _startAnimation() {
         for (Dot mDot : mDots) {
             mDot.positionAnimator.start();
         }
@@ -204,6 +231,7 @@ public class DotLoader extends View {
         animator.addUpdateListener(new DotYUpdater(dot, this));
         animator.addListener(new Animator.AnimatorListener() {
             private boolean alternate = true;
+
             @Override
             public void onAnimationStart(Animator animator) {
 
@@ -221,7 +249,7 @@ public class DotLoader extends View {
 
             @Override
             public void onAnimationRepeat(Animator animator) {
-                if(alternate) {
+                if (alternate) {
                     dot.colorAnimator.setObjectValues(
                             mColors[dot.mCurrentColorIndex],
                             mColors[dot.incrementColorIndex()]

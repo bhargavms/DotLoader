@@ -40,10 +40,17 @@
                 app:number_of_dots="3"/>
         </LinearLayout>
 
-        <View
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"/>
+            android:layout_weight="1">
+            <com.bhargavms.dotloader.DotLoader
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:dot_radius="9dp"
+                app:color_array="@array/dot_colors"
+                app:number_of_dots="3"/>
+        </FrameLayout>
 
         <com.bhargavms.dotloader.DotLoader
             android:id="@+id/dot_loader"
