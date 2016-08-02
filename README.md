@@ -1,5 +1,6 @@
 # DotLoader
 [![Release](https://jitpack.io/v/bhargavms/DotLoader.svg)](https://github.com/bhargavms/DotLoader/releases/tag/1.0.0)
+[![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-DotLoader-green.svg?style=true)](https://android-arsenal.com/details/1/4032)
 -------------------------------------------------------
 #### First, the gifs!
 ##### I am the one with constant Dots:
