@@ -190,12 +190,12 @@ public class DotLoader extends View {
      * @deprecated
      */
     private void startAnimation() {
-        post(new Runnable() {
+        postDelayed(new Runnable() {
             @Override
             public void run() {
                 _startAnimation();
             }
-        });
+        }, 10);
     }
 
     /**
