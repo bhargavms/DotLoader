@@ -215,6 +215,7 @@ public class DotLoader extends View {
     }
 
     private void _startAnimation() {
+        initAnimation();
         for (Dot mDot : mDots) {
             mDot.positionAnimator.start();
         }
@@ -372,7 +373,6 @@ public class DotLoader extends View {
         }
         mFromY = height - mDotRadius;
         mToY = mDotRadius;
-        initAnimation();
         setMeasuredDimension(width, height);
     }
 
