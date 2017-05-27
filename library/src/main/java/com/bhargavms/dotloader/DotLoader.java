@@ -66,38 +66,7 @@ public class DotLoader extends View {
         valueAnimator.addUpdateListener(new DotYUpdater(dot, this));
         valueAnimator.setStartDelay(DELAY_BETWEEN_DOTS * dot.position);
         valueAnimator.removeAllListeners();
-        valueAnimator.addListener(new Animator.AnimatorListener() {
-            private boolean alternate = true;
-
-            @Override
-            public void onAnimationStart(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-                if (alternate) {
-                    dot.colorAnimator.setObjectValues(
-                            mColors[dot.mCurrentColorIndex],
-                            mColors[dot.incrementColorIndex()]
-                    );
-                    dot.colorAnimator.start();
-                    alternate = false;
-                } else {
-                    alternate = true;
-                }
-            }
-        });
+        valueAnimator.addListener(new AnimationRepeater(dot, mColors));
         return valueAnimator;
     }
 
@@ -171,6 +140,7 @@ public class DotLoader extends View {
         for (int i = 0; i < numberOfDots; i++) {
             mDots[i] = new Dot(this, dotRadius, i);
         }
+        //noinspection deprecation
         startAnimation();
     }
 
@@ -230,38 +200,7 @@ public class DotLoader extends View {
         animator.setRepeatCount(ValueAnimator.INFINITE);
         animator.setRepeatMode(ValueAnimator.REVERSE);
         animator.addUpdateListener(new DotYUpdater(dot, this));
-        animator.addListener(new Animator.AnimatorListener() {
-            private boolean alternate = true;
-
-            @Override
-            public void onAnimationStart(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animator) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animator) {
-                if (alternate) {
-                    dot.colorAnimator.setObjectValues(
-                            mColors[dot.mCurrentColorIndex],
-                            mColors[dot.incrementColorIndex()]
-                    );
-                    dot.colorAnimator.start();
-                    alternate = false;
-                } else {
-                    alternate = true;
-                }
-            }
-        });
+        animator.addListener(new AnimationRepeater(dot, mColors));
         return animator;
     }
 
