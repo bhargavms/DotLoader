@@ -12,7 +12,7 @@ class Dot {
     private Paint mPaint;
     int mCurrentColorIndex;
     private int mDotRadius;
-    private DotLoader mParent;
+    private Integer[] mColors;
     float cx;
     float cy;
     int position;
@@ -21,27 +21,27 @@ class Dot {
 
     Dot(DotLoader parent, int dotRadius, int position) {
         this.position = position;
-        mParent = parent;
+        mColors = parent.mColors;
         mCurrentColorIndex = 0;
         mDotRadius = dotRadius;
 
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setColor(mParent.mColors[mCurrentColorIndex]);
+        mPaint.setColor(mColors[mCurrentColorIndex]);
         mPaint.setShadowLayer(5.5f, 6.0f, 6.0f, Color.BLACK);
         mPaint.setStyle(Paint.Style.FILL);
     }
 
-    public void setColorIndex(int index) {
+    void setColorIndex(int index) {
         mCurrentColorIndex = index;
-        mPaint.setColor(mParent.mColors[index]);
+        mPaint.setColor(mColors[index]);
     }
 
-    public void setColor(int color) {
+    void setColor(int color) {
         mPaint.setColor(color);
     }
 
-    public int getCurrentColor() {
-        return mParent.mColors[mCurrentColorIndex];
+    private int getCurrentColor() {
+        return mColors[mCurrentColorIndex];
     }
 
     public int incrementAndGetColor() {
@@ -51,19 +51,19 @@ class Dot {
 
     void applyNextColor() {
         mCurrentColorIndex++;
-        if (mCurrentColorIndex >= mParent.mColors.length)
+        if (mCurrentColorIndex >= mColors.length)
             mCurrentColorIndex = 0;
-        mPaint.setColor(mParent.mColors[mCurrentColorIndex]);
+        mPaint.setColor(mColors[mCurrentColorIndex]);
     }
 
     int incrementColorIndex() {
         mCurrentColorIndex++;
-        if (mCurrentColorIndex >= mParent.mColors.length)
+        if (mCurrentColorIndex >= mColors.length)
             mCurrentColorIndex = 0;
         return mCurrentColorIndex;
     }
 
-    public void draw(Canvas canvas) {
+    void draw(Canvas canvas) {
         canvas.drawCircle(cx, cy, mDotRadius, mPaint);
     }
 }

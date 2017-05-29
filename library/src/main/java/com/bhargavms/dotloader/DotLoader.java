@@ -1,6 +1,5 @@
 package com.bhargavms.dotloader;
 
-import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.annotation.TargetApi;
